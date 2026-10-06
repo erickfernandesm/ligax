@@ -1,0 +1,18 @@
+node_modules
+.next
+out
+*.tsbuildinfo
+next-env.d.ts
+.env*.local
+# Gerados por scripts/sync-assets.mjs
+public/assets
+public/engine
+src/config/assets.generated.json
+.e2e-shots
+# Banco de dados e vídeos enviados
+data
+.next-e2e
+# Build da Cloudflare
+.open-next
+.wrangler
+.dev.vars
