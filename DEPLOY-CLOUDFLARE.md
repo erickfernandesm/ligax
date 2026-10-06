@@ -1,53 +1,38 @@
 # Publicar na Cloudflare (plano gratuito)
 
-A plataforma roda na Cloudflare como um **Worker** (o site e a API) ligado a um banco **D1** (contas, progresso, aulas e partidas online). O build acontece nos servidores da Cloudflare, a partir do GitHub: não precisa instalar nada na sua máquina.
+No ar em: https://ligax-xadrez.erickfernandesmazilao.workers.dev
+
+A plataforma roda na Cloudflare como um **Worker** (o site e a API) ligado a um banco **D1** (contas, progresso, aulas e partidas online). O build acontece no GitHub Actions: não precisa instalar nada na máquina.
 
 ```
-GitHub (código)  →  Cloudflare Workers Builds (compila)  →  Worker + D1 (no ar)
+git push  →  GitHub Actions (testa e compila)  →  Worker + D1 (no ar)
 ```
 
-## Passo a passo
+## Como funciona
 
-### 1. Código no GitHub
+O arquivo `.github/workflows/deploy.yml` roda a cada `git push` na `main` (ou manualmente, em **Actions → Deploy → Run workflow**):
 
-1. Crie uma conta em https://github.com (se ainda não tiver).
-2. Crie um repositório **privado** e **vazio** chamado `ligax` (sem README, sem .gitignore).
-3. Na pasta do projeto:
+1. instala as dependências (`npm ci`, Node 22 pelo `.nvmrc`);
+2. valida o conteúdo e roda os testes;
+3. compila com o adaptador OpenNext (`npx opennextjs-cloudflare build`);
+4. publica (`npx wrangler deploy`).
 
-```bash
-git remote add origin https://github.com/erickfernandesm/ligax.git
-git push -u origin main
-```
+O banco D1 `ligax` foi criado pelo primeiro deploy, e a tabela é criada no primeiro acesso. Não há migração para rodar.
 
-Na primeira vez o Windows abre uma janela para você entrar no GitHub.
+## Segredos do repositório
 
-### 2. Conta na Cloudflare
+Em **Settings → Secrets and variables → Actions**:
 
-Crie uma conta gratuita em https://dash.cloudflare.com.
-
-O banco D1 não precisa ser criado à mão: o primeiro deploy cria o banco `ligax` sozinho, e a tabela é criada no primeiro acesso.
-
-### 3. Ligar o repositório à Cloudflare
-
-1. No painel: **Workers & Pages → Create → Import a repository**.
-2. Autorize o GitHub e escolha `ligax`.
-3. Preencha:
-
-| Campo | Valor |
+| Segredo | O que é |
 | --- | --- |
-| Project name | `ligax-xadrez` (tem que ser igual ao `name` do `wrangler.jsonc`) |
-| Build command | `npx opennextjs-cloudflare build` |
-| Deploy command | `npx wrangler deploy` |
+| `CLOUDFLARE_API_TOKEN` | token da API da Cloudflare com permissão de editar Workers e D1 |
+| `CLOUDFLARE_ACCOUNT_ID` | id da conta (aparece na página inicial do painel) |
 
-4. **Save and Deploy**. O primeiro build leva alguns minutos.
+Para criar um token permanente: painel da Cloudflare → **My Profile → API Tokens → Create Token → Edit Cloudflare Workers**, acrescente **Account → D1 → Edit**, crie e cole o valor no segredo `CLOUDFLARE_API_TOKEN`.
 
-A versão do Node vem do arquivo `.nvmrc` (22). A partir daqui, todo `git push` publica uma versão nova sozinho.
+## Domínio próprio
 
-### 4. Primeiro acesso
-
-1. Abra o endereço que a Cloudflare mostrar (`https://ligax-xadrez.SEU-SUBDOMINIO.workers.dev`).
-2. Crie a sua conta. **A primeira conta criada vira admin.**
-3. Para usar o domínio da Liga X: no Worker, **Settings → Domains & Routes → Add → Custom Domain**.
+No painel, abra o Worker `ligax-xadrez` → **Settings → Domains & Routes → Add → Custom Domain**.
 
 ## O que muda em relação a rodar na sua máquina
 
@@ -65,11 +50,13 @@ As contas criadas na sua máquina não vão junto: o banco da Cloudflare começa
 - **Tempo de processamento** de 10 ms de CPU por requisição. Criar conta e entrar são as operações mais pesadas (cálculo da senha). Se aparecer "Error 1102" nessas telas, é esse limite, e a saída é o plano pago (US$ 5/mês).
 - **D1**: 5 GB e 5 milhões de leituras por dia. Folgado para o tamanho atual.
 
-## Se o build falhar
+## Se o deploy falhar
 
-- **"Worker exceeded the size limit of 3 MiB"**: o plano gratuito limita o tamanho do código. Me mande o log.
-- **Erro pedindo `database_id`**: crie o banco pelo painel (**Storage & Databases → D1 → Create**, nome `ligax`), copie o Database ID e acrescente `"database_id": "<id>"` no bloco `d1_databases` do `wrangler.jsonc`.
-- **Página abre, mas dá erro ao criar conta**: abra o Worker no painel, **Logs → Live**, repita a ação e veja a mensagem.
+Abra a aba **Actions** do repositório e veja o passo que ficou vermelho.
+
+- **Authentication error no passo "Publicar na Cloudflare"**: o `CLOUDFLARE_API_TOKEN` expirou ou não tem permissão. Crie um token novo (seção acima).
+- **"Worker exceeded the size limit of 3 MiB"**: o plano gratuito limita o tamanho do código (hoje são cerca de 1,2 MiB).
+- **Página abre, mas dá erro ao criar conta**: no painel, abra o Worker, **Logs → Live**, repita a ação e veja a mensagem.
 
 ## Variáveis (opcional)
 
