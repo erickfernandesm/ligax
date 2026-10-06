@@ -1,0 +1,362 @@
+import type { Lesson, LessonCategory, LessonLevel, Professor, SavedPosition } from '@/core/domain/types';
+
+// Conteúdo inicial da área de Aulas. É só a "semente" gravada no banco na
+// primeira execução; depois disso professores e aulas são gerenciados pelo
+// painel (/admin). As aulas nascem como rascunho: falta o professor enviar o vídeo.
+
+export const CATEGORY_LABEL: Record<LessonCategory, string> = {
+  fundamentos: 'Fundamentos',
+  estrategia: 'Estratégia',
+  tatica: 'Tática',
+  finais: 'Finais',
+  avancado: 'Avançado',
+};
+
+export const LEVEL_LABEL: Record<LessonLevel, string> = {
+  iniciante: 'Iniciante',
+  intermediario: 'Intermediário',
+  avancado: 'Avançado',
+};
+
+const SEED_DATE = '2026-01-05T12:00:00.000Z';
+
+export const SEED_PROFESSORS: Professor[] = [
+  {
+    id: 'tio-guilherme',
+    characterId: 'tio-guilherme',
+    name: 'Tio Guilherme',
+    title: 'Professor de Fundamentos',
+    area: 'fundamentos',
+    bio: 'Ensina do zero, sem pressa e sem termo complicado. Se você nunca jogou, comece por aqui.',
+    published: true,
+  },
+  {
+    id: 'tio-joao',
+    characterId: 'tio-joao',
+    name: 'Tio João',
+    title: 'Professor de Estratégia',
+    area: 'estrategia',
+    bio: 'Mostra como montar um plano: onde colocar cada peça, quando trocar e como ler a estrutura de peões.',
+    published: true,
+  },
+  {
+    id: 'tio-renan',
+    characterId: 'tio-renan',
+    name: 'Tio Renan',
+    title: 'Professor de Tática',
+    area: 'tatica',
+    bio: 'Garfo, cravada, ataque descoberto. Os golpes que decidem partida, um por aula.',
+    published: true,
+  },
+  {
+    id: 'tio-marcao',
+    characterId: 'tio-marcao',
+    name: 'Tio Marcão',
+    title: 'Professor Avançado',
+    area: 'avancado',
+    bio: 'Cálculo, finais e sacrifícios. Pra quem já joga bem e quer jogar melhor.',
+    published: true,
+  },
+];
+
+const empty = { squares: [], arrows: [] };
+
+/** Posições oficiais que acompanham as aulas ("Agora pratique"). */
+export const SEED_POSITIONS: SavedPosition[] = [
+  {
+    id: 'liga-abertura',
+    name: 'Abertura: os primeiros lances',
+    description: 'Depois de 1.e4 e5. Desenvolva cavalo, bispo e faça o roque.',
+    fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
+    annotations: {
+      squares: [],
+      arrows: [
+        { from: 'g1', to: 'f3', color: 'good' },
+        { from: 'f1', to: 'c4', color: 'idea' },
+      ],
+    },
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+  {
+    id: 'liga-centro',
+    name: 'Controle do centro',
+    description: 'As quatro casas que mandam no jogo.',
+    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    annotations: {
+      squares: ['e4', 'd4', 'e5', 'd5'].map((square) => ({ square, color: 'idea' as const })),
+      arrows: [],
+    },
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+  {
+    id: 'liga-desenvolvimento',
+    name: 'Desenvolvimento das peças',
+    description: 'Abertura Italiana. Termine o desenvolvimento e guarde o rei.',
+    fen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+    annotations: { squares: [{ square: 'e1', color: 'warn' }], arrows: [{ from: 'e1', to: 'g1', color: 'good' }] },
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+  {
+    id: 'liga-peoes',
+    name: 'Leitura dos peões',
+    description: 'Dobrados em c, isolado em a2, passado em d5.',
+    fen: '6k1/pp3ppp/8/3P4/8/2P5/P1P3PP/6K1 w - - 0 1',
+    annotations: {
+      squares: [
+        { square: 'c2', color: 'warn' },
+        { square: 'c3', color: 'warn' },
+        { square: 'a2', color: 'bad' },
+        { square: 'd5', color: 'good' },
+      ],
+      arrows: [],
+    },
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+  {
+    id: 'liga-coluna-aberta',
+    name: 'Torre na coluna aberta',
+    description: 'Ocupe a coluna d e invada a sétima fileira.',
+    fen: 'r5k1/ppp2ppp/8/8/8/8/PPP2PPP/R5K1 w - - 0 1',
+    annotations: { squares: [], arrows: [{ from: 'a1', to: 'd1', color: 'good' }] },
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+  {
+    id: 'liga-garfo',
+    name: 'Garfo de cavalo',
+    description: 'Ache a casa que ataca rei e torre.',
+    fen: 'r3k3/8/8/3N4/8/8/8/4K3 w - - 0 1',
+    annotations: empty,
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+  {
+    id: 'liga-cravada',
+    name: 'Cravada na diagonal',
+    description: 'A dama preta está alinhada com o rei.',
+    fen: '6k1/6pp/8/3q4/8/1P6/6PP/5BK1 w - - 0 1',
+    annotations: { squares: [{ square: 'd5', color: 'warn' }, { square: 'g8', color: 'bad' }], arrows: [] },
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+  {
+    id: 'liga-escada',
+    name: 'Mate da escada',
+    description: 'Duas torres contra rei. Pratique até fazer de olho fechado.',
+    fen: '8/8/8/4k3/8/8/R7/1R4K1 w - - 0 1',
+    annotations: empty,
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+  {
+    id: 'liga-sacrificio',
+    name: 'Sacrifício na coluna h',
+    description: 'Entregue a torre para a dama entrar.',
+    fen: '5rk1/6p1/6P1/8/8/8/4Q3/6KR w - - 0 1',
+    annotations: { squares: [{ square: 'g6', color: 'good' }], arrows: [] },
+    moves: [],
+    source: 'liga',
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE,
+  },
+];
+
+function lesson(
+  id: string,
+  professorId: string,
+  number: number,
+  title: string,
+  description: string,
+  category: LessonCategory,
+  level: LessonLevel,
+  minutes: number,
+  keyPoints: string[],
+  practicePositionId?: string,
+): Lesson {
+  const position = SEED_POSITIONS.find((p) => p.id === practicePositionId);
+  return {
+    id,
+    professorId,
+    number,
+    title,
+    description,
+    category,
+    level,
+    minutes,
+    keyPoints,
+    practice: position
+      ? { name: position.name, description: position.description, fen: position.fen, annotations: position.annotations }
+      : null,
+    video: null,
+    // aula é vídeo: nasce como rascunho e só é publicada depois que o professor enviar o vídeo
+    published: false,
+    createdAt: SEED_DATE,
+  };
+}
+
+export const SEED_LESSONS: Lesson[] = [
+  lesson(
+    'como-comecar',
+    'tio-guilherme',
+    1,
+    'Como começar uma partida',
+    'Os três objetivos da abertura e o que evitar nos primeiros lances.',
+    'fundamentos',
+    'iniciante',
+    8,
+    [
+      'Nos primeiros lances, três objetivos: ocupar o centro, desenvolver as peças e proteger o rei.',
+      'Evite mexer a mesma peça duas vezes sem necessidade.',
+      'Não saia com a dama cedo: ela vira alvo e você perde tempo fugindo.',
+    ],
+    'liga-abertura',
+  ),
+  lesson(
+    'controle-do-centro',
+    'tio-guilherme',
+    2,
+    'Controle do centro',
+    'Por que e4, d4, e5 e d5 valem mais que as outras casas.',
+    'fundamentos',
+    'iniciante',
+    7,
+    [
+      'Peças no centro alcançam mais casas e chegam rápido aos dois lados do tabuleiro.',
+      'Controlar não é só ocupar: um cavalo em f3 controla d4 e e5 à distância.',
+      'Se o adversário domina o centro, ataque-o com peões pelos lados.',
+    ],
+    'liga-centro',
+  ),
+  lesson(
+    'desenvolvimento',
+    'tio-guilherme',
+    3,
+    'Desenvolvimento das peças',
+    'A ordem certa para colocar suas peças em jogo.',
+    'fundamentos',
+    'iniciante',
+    9,
+    [
+      'Cavalos antes dos bispos: é mais fácil saber onde o cavalo vai ficar bem.',
+      'Faça o roque cedo. Ele guarda o rei e conecta as torres.',
+      'Só comece a atacar depois que todas as peças estiverem em jogo.',
+    ],
+    'liga-desenvolvimento',
+  ),
+  lesson(
+    'estrutura-de-peoes',
+    'tio-joao',
+    1,
+    'Estrutura de peões',
+    'Peões dobrados, isolados e passados: como reconhecer e o que fazer com cada um.',
+    'estrategia',
+    'intermediario',
+    10,
+    [
+      'Peão dobrado e peão isolado são fraquezas de longo prazo: não se consertam sozinhas.',
+      'Peão passado deve avançar, de preferência com uma torre atrás dele.',
+      'A estrutura diz onde jogar: ataque do lado em que seus peões apontam.',
+    ],
+    'liga-peoes',
+  ),
+  lesson(
+    'pecas-ativas',
+    'tio-joao',
+    2,
+    'Peças ativas',
+    'Como achar a melhor casa para cada peça, começando pelas torres.',
+    'estrategia',
+    'intermediario',
+    8,
+    [
+      'Torres querem colunas abertas. Bispos querem diagonais longas. Cavalos querem casas avançadas e protegidas.',
+      'Uma torre na sétima fileira costuma valer um peão a mais.',
+      'Sem ideia do que jogar? Melhore a sua pior peça.',
+    ],
+    'liga-coluna-aberta',
+  ),
+  lesson(
+    'garfo',
+    'tio-renan',
+    1,
+    'Garfo',
+    'O golpe mais comum do xadrez e como enxergar antes do adversário.',
+    'tatica',
+    'iniciante',
+    6,
+    [
+      'Garfo: uma peça ataca duas ao mesmo tempo.',
+      'Peças sem defesa e rei exposto são os alvos preferidos.',
+      'Antes de cada lance, confira: algum cavalo adversário consegue dar garfo em mim?',
+    ],
+    'liga-garfo',
+  ),
+  lesson(
+    'cravada',
+    'tio-renan',
+    2,
+    'Cravada',
+    'Quando uma peça não pode se mexer, e como tirar proveito disso.',
+    'tatica',
+    'intermediario',
+    7,
+    [
+      'Cravada absoluta: atrás da peça está o rei. Ela não pode sair de jeito nenhum.',
+      'Cravada relativa: atrás está uma peça valiosa. Ela pode sair, mas custa caro.',
+      'Peça cravada é peça fraca: ataque-a mais vezes do que ela é defendida.',
+    ],
+    'liga-cravada',
+  ),
+  lesson(
+    'finais-basicos',
+    'tio-marcao',
+    1,
+    'Finais básicos',
+    'Os mates que você tem obrigação de saber dar.',
+    'finais',
+    'intermediario',
+    11,
+    [
+      'Duas torres contra rei: o mate da escada, uma fileira por vez.',
+      'Dama e rei contra rei: aproxime o rei, e cuidado com o afogamento.',
+      'No final, o rei é peça de ataque. Leve-o para o centro.',
+    ],
+    'liga-escada',
+  ),
+  lesson(
+    'sacrificios',
+    'tio-marcao',
+    2,
+    'Sacrifícios',
+    'Quando vale a pena entregar material.',
+    'avancado',
+    'avancado',
+    12,
+    [
+      'Sacrifício só é bom se a linha for forçada ou a compensação for clara.',
+      'Os motivos mais comuns: abrir o rei adversário, ganhar tempo ou desviar um defensor.',
+      'Calcule até o fim antes de entregar. Esperança não é plano.',
+    ],
+    'liga-sacrificio',
+  ),
+];
