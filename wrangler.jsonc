@@ -1,0 +1,25 @@
+// Configuração da Cloudflare (Workers + D1), usada pelo adaptador OpenNext.
+// Guia passo a passo: DEPLOY-CLOUDFLARE.md
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ligax-xadrez",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "observability": { "enabled": true },
+  // Banco de dados. Sem "database_id", o próprio deploy cria o banco D1 "ligax"
+  // na primeira vez e passa a reutilizá-lo. Se preferir criar pelo painel,
+  // acrescente aqui: "database_id": "<id do banco>".
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ligax"
+    }
+  ],
+  "vars": {
+    // E-mails que viram admin ao criar a conta (separados por vírgula).
+    // A primeira conta criada vira admin de qualquer jeito.
+    "LIGAX_ADMIN_EMAILS": ""
+  }
+}
